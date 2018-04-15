@@ -116,7 +116,7 @@ export default Component.extend({
 
 		this.get('quillInstance').on('selection-change', (delta, oldDelta, source) => {
 			this.get('quillable').select(this.name, this.get('quillInstance'), delta, oldDelta, source);
-			this.get('quillInstance').enabled(this.get('enabled'));
+			this.get('quillInstance').enable(this.get('enabled'));
 		});
 
 	},
