@@ -1,4 +1,5 @@
 import { inject as service } from '@ember/service';
+import { computed } from '@ember/object';
 import Component from '@ember/component';
 import Quill from 'quill';
 import layout from '../templates/components/quill-editor';
@@ -10,6 +11,7 @@ const options = [
 	'modules',
 	'placeholder',
 	'readOnly',
+	'enabled',
 	'theme',
 ];
 
@@ -44,6 +46,7 @@ export default Component.extend({
 	},
 	placeholder: '',
 	readOnly: false,
+	enabled: false,
 	theme: 'snow',
 	toolbar: [
 		[{'header': [1, 2, 3, 4, false]}],
@@ -59,6 +62,8 @@ export default Component.extend({
 	// Set quill editor
 	// ------------------------------
 
+	quillInstance: null,
+
 	didInsertElement() {
 
 		this._super(...arguments);
@@ -71,44 +76,47 @@ export default Component.extend({
 
 		// Instantiate the Quill editor instance.
 
-		this.quill = new Quill(this.element, settings);
+		debugger
+
+		this.set('quillInstance', new Quill(this.element, settings));
 
 		// Set the default delta contents if specified.
 
-		if (this.delta) this.quill.setContents(this.delta);
+		if (this.delta) this.get('quillInstance').setContents(this.delta);
 
 		// Listen to events and call any specified actions.
 
-		this.quill.on('editor-change', (event, ...args) => {
+		this.get('quillInstance').on('editor-change', (event, ...args) => {
 			this.sendAction('editor-change', event, ...args);
 		});
 
-		this.quill.on('text-change', (delta, oldDelta, source) => {
+		this.get('quillInstance').on('text-change', (delta, oldDelta, source) => {
 			this.sendAction('text-change', delta, oldDelta, source);
 		});
 
-		this.quill.on('selection-change', (delta, oldDelta, source) => {
+		this.get('quillInstance').on('selection-change', (delta, oldDelta, source) => {
 			this.sendAction('selection-change', delta, oldDelta, source);
 		});
 
 		// Listen to events for getting full content or length.
 
-		this.quill.on('text-change', () => {
-			this.sendAction('length-change', this.quill.getLength());
-			this.sendAction('content-change', this.quill.getContents());
+		this.get('quillInstance').on('text-change', () => {
+			this.sendAction('length-change', this.get('quillInstance').getLength());
+			this.sendAction('content-change', this.get('quillInstance').getContents());
 			this.sendAction('html-change', this.$('.ql-editor').html());
 		});
 
 		// Listen to events for syncing with the quillable service.
 
-		this.get('quillable').register(this.name, this.quill);
+		this.get('quillable').register(this.name, this.get('quillInstance'));
 
-		this.quill.on('text-change', (delta, oldDelta, source) => {
-			this.get('quillable').update(this.name, this.quill, delta, oldDelta, source);
+		this.get('quillInstance').on('text-change', (delta, oldDelta, source) => {
+			this.get('quillable').update(this.name, this.get('quillInstance'), delta, oldDelta, source);
 		});
 
-		this.quill.on('selection-change', (delta, oldDelta, source) => {
-			this.get('quillable').select(this.name, this.quill, delta, oldDelta, source);
+		this.get('quillInstance').on('selection-change', (delta, oldDelta, source) => {
+			this.get('quillable').select(this.name, this.get('quillInstance'), delta, oldDelta, source);
+			this.get('quillInstance').enabled(this.get('enabled'));
 		});
 
 	},
@@ -117,7 +125,7 @@ export default Component.extend({
 
 		this._super(...arguments);
 
-		this.get('quillable').unregister(this.name, this.quill);
+		this.get('quillable').unregister(this.name, this.get('quillInstance'));
 
 	},
 
