@@ -1,5 +1,5 @@
 import { inject as service } from '@ember/service';
-import { computed } from '@ember/object';
+import { computed, observer } from '@ember/object';
 import Component from '@ember/component';
 import Quill from 'quill';
 import layout from '../templates/components/quill-editor';
@@ -76,8 +76,6 @@ export default Component.extend({
 
 		// Instantiate the Quill editor instance.
 
-		debugger
-
 		this.set('quillInstance', new Quill(this.element, settings));
 
 		// Set the default delta contents if specified.
@@ -116,10 +114,13 @@ export default Component.extend({
 
 		this.get('quillInstance').on('selection-change', (delta, oldDelta, source) => {
 			this.get('quillable').select(this.name, this.get('quillInstance'), delta, oldDelta, source);
-			this.get('quillInstance').enable(this.get('enabled'));
 		});
 
 	},
+
+	enabledObs: observer('enabled', () => {
+		this.get('quillInstance').enable(this.get('enabled'));
+	}),
 
 	willDestroyElement() {
 
