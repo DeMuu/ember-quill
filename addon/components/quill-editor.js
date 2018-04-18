@@ -118,7 +118,7 @@ export default Component.extend({
 
 	},
 
-	enabledObs: observer('enabled', () => {
+	enabledObs: observer('enabled', function () {
 		this.get('quillInstance').enable(this.get('enabled'));
 	}),
 
