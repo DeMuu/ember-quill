@@ -46,7 +46,7 @@ export default Component.extend({
 	},
 	placeholder: '',
 	readOnly: false,
-	enabled: false,
+	enabled: true,
 	theme: 'snow',
 	toolbar: [
 		[{'header': [1, 2, 3, 4, false]}],
@@ -81,6 +81,10 @@ export default Component.extend({
 		// Set the default delta contents if specified.
 
 		if (this.delta) this.get('quillInstance').setContents(this.delta);
+
+		// Set default enabled state
+
+		this.get('quillInstance').enable(this.get('enabled'));
 
 		// Listen to events and call any specified actions.
 
